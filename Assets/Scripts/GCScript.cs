@@ -12,7 +12,7 @@ public class GCScript : MonoBehaviour {
 	private float countdown;
 	public bool gameOver = false;
 	public int newMonX, newMonZ, ranSide, ranSquare, ranType;
-	public Transform newMonType, goblin;
+	public Transform newMonType, goblin, ork;
 	
 	// Use this for initialization
 	void Start () {
@@ -21,7 +21,7 @@ public class GCScript : MonoBehaviour {
 		movement = 2;
 		level = 0;
 		power = 1;
-		endurance = 1;
+		endurance = 0;
 		experience = 0;
 		playHP = 10;
 		speed = 2;
@@ -139,14 +139,27 @@ public class GCScript : MonoBehaviour {
 
 	void MonSpawn () {
 
+		if (experience >= (2*level+1)*10) 
+		{
+			power++;
+			speed++;
+			endurance++;
+			playHP += 10;
+			experience -= (2*level+1)*10;
+			level++;
+
+		}
+
 		ranSide = Random.Range (0, 3);
 		ranSquare = Random.Range (0, 10);
-		ranType = Random.Range (0, level);
+		ranType = Random.Range (0, (level+1)*25);
 		if (ranSide == 0) {newMonX = -5; newMonZ = ranSquare - 5;}
 		if (ranSide == 1) {newMonZ = 5; newMonX = ranSquare - 5;}
 		if (ranSide == 2) {newMonX = 5; newMonZ = ranSquare - 5;}
 		if (ranSide == 3) {newMonZ = -5; newMonX = ranSquare - 5;}
-		if (ranType == 0) {newMonType = goblin;}
+		if (ranType < 40) {newMonType = goblin;}
+		if (40 < ranType && ranType < 70) {newMonType = ork;}
+		else {newMonType = goblin;}
 		Instantiate(newMonType, new Vector3(newMonX*5f, 2.5f, newMonZ*5f), Quaternion.identity);
 
 	}

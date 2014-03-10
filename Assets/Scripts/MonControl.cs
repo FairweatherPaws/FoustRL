@@ -3,7 +3,7 @@ using System.Collections;
 
 public class MonControl : MonoBehaviour {
 
-	public int monX, monZ, monPow, monEnd, monSpe, monHP, oldX, oldZ, dLX, dLZ, monMove, monExp;
+	public int monX, monZ, monPow, monEnd, monSpe, monHP, oldX, oldZ, dLX, dLZ, monMove, monExp, qad;
 	public Transform monType;
 	private GoTweenChain chain;
 	public bool monTurn = false;
@@ -47,7 +47,8 @@ public class MonControl : MonoBehaviour {
 				{
 					dLX = 0;
 					dLZ = 0;
-					Script1.playHP = Script1.playHP - monPow;
+					qad = monPow - Script1.endurance;
+					if (qad > 0) { Script1.playHP = Script1.playHP - qad; }
 					if (Script1.playHP <= 0) {Script1.gameOver = true;}
 					obstacle = true;
 				}

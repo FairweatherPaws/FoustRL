@@ -1,17 +1,20 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\GCScript.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\MonStats.cs">
     <Files>
-      <File FileName="Assets\Scripts\GCScript.cs" Line="88" Column="74" />
-      <File FileName="Assets\Scripts\MonControl.cs" Line="62" Column="40" />
-      <File FileName="Assets\Scripts\MonStats.cs" Line="4" Column="22" />
+      <File FileName="Assets\Scripts\GCScript.cs" Line="148" Column="12" />
+      <File FileName="Assets\Scripts\MonControl.cs" Line="49" Column="13" />
+      <File FileName="Assets\Scripts\MonStats.cs" Line="6" Column="52" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
           <Node name="Assembly-CSharp" expanded="True">
+            <Node name="Creatures" expanded="True">
+              <Node name="Scripts" expanded="True" />
+            </Node>
             <Node name="Scripts" expanded="True">
-              <Node name="GCScript.cs" selected="True" />
+              <Node name="MonStats.cs" selected="True" />
             </Node>
           </Node>
         </State>

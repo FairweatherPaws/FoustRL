@@ -51,6 +51,7 @@
      <Compile Include="Assets\Scripts\Goblin.cs" />
      <Compile Include="Assets\Scripts\MonControl.cs" />
      <Compile Include="Assets\Scripts\MonStats.cs" />
+     <Compile Include="Assets\Scripts\Ork.cs" />
      <Compile Include="Assets\Scripts\PlayerScript.cs" />
      <None Include="Assets\Plugins\GoKit\easing\easeEquationsLicense.txt" />
   </ItemGroup>
