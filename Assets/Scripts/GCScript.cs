@@ -6,7 +6,7 @@ public class GCScript : MonoBehaviour {
 	private float autoticker = 0;
 	private GoTweenChain chain;
 	public int power, endurance, speed, joustbonus, playHP, experience, pLocX, pLocZ, oldLocX, oldLocZ, dLocX, dLocZ, level, movement, qad;
-	public int mapX, mapZ, killCount;
+	public int mapX, mapZ, killCount, spawnCount;
 	public GameObject powerNum, endNum, speedNum, jbonusNum, moveNum, HPNum, EXPNum, levelNum, killsNum, gameOverText, player, enemy, stabVictim;
 	private int[,] mapGrid, playerLoc;
 	private bool conflict = false;
@@ -89,7 +89,7 @@ public class GCScript : MonoBehaviour {
 							if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX += 1; pLocZ += 1; MoveFunct();}
 						}
 						if (Input.GetAxis("Wait") > 0) 
-						{MoveFunct();}
+						{joustbonus = 0; MoveFunct();}
 						
 						
 						
@@ -176,9 +176,9 @@ public class GCScript : MonoBehaviour {
 			playHP += 10;
 			experience -= (2*level+1)*10;
 			level++;
-
-
 		}
+		spawnCount = 0;
+
 	redux:
 		ranSide = Random.Range (0, 3);
 		ranSquareX = Random.Range (1, mapX*2 - 1);
@@ -200,6 +200,8 @@ public class GCScript : MonoBehaviour {
 		
 
 		Instantiate(newMonType, new Vector3(newMonX*5f, 2.5f, newMonZ*5f), Quaternion.identity);
+
+		if (spawnCount < level) {spawnCount++; goto redux;}
 
 	}
 	

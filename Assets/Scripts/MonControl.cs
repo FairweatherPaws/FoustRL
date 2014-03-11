@@ -12,7 +12,7 @@ public class MonControl : MonoBehaviour {
 	private GameObject gc, player, enemy;
 
 	// Use this for initialization
-	void Start () {
+	void Awake () {
 
 		gc = GameObject.FindGameObjectWithTag("GameController");
 		GCScript Script1 = gc.GetComponent<GCScript>();
