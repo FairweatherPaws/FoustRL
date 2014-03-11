@@ -7,13 +7,14 @@ public class GCScript : MonoBehaviour {
 	private GoTweenChain chain;
 	public int power, endurance, speed, joustbonus, playHP, experience, pLocX, pLocZ, oldLocX, oldLocZ, dLocX, dLocZ, level, movement, qad;
 	public int mapX, mapZ, killCount;
-	public GameObject powerNum, endNum, speedNum, jbonusNum, moveNum, HPNum, EXPNum, levelNum, killsNum, player, enemy, stabVictim;
+	public GameObject powerNum, endNum, speedNum, jbonusNum, moveNum, HPNum, EXPNum, levelNum, killsNum, gameOverText, player, enemy, stabVictim;
 	private int[,] mapGrid, playerLoc;
 	private bool conflict = false;
+	private bool blinkUp = true;
 	private float countdown, cooldown;
 	public bool gameOver = false;
 	public int newMonX, newMonZ, ranSide, ranSquareX, ranSquareZ, ranType;
-	public Transform newMonType, goblin, ork;
+	public Transform newMonType, goblin, ork, krusher;
 	
 	// Use this for initialization
 	void Start () {
@@ -34,68 +35,84 @@ public class GCScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		if (gameOver) {Application.Quit();}
-		if (countdown > 0) {countdown -= Time.deltaTime;}
-		else 
-		{
-			if (movement <= 0){movement = speed;}
-			else		 
-			{
-				cooldown -= Time.deltaTime;
-				// checks for key input and if correct, moves
-				if (Input.anyKeyDown && cooldown < 0)
-				{
-					cooldown = 0.1f;
-					oldLocX = pLocX;
-					oldLocZ = pLocZ;
-					if (Input.GetAxis("LERI") < 0) { 
-						if (Mathf.Abs ( pLocX - 1 ) < mapX) {pLocX -= 1; MoveFunct();}
-					}
-					if (Input.GetAxis("LERI") > 0) {
-						if (Mathf.Abs ( pLocX + 1 ) < mapX) {pLocX += 1; MoveFunct();}
-					}
-					if (Input.GetAxis("UPDO") < 0) {
-						if (Mathf.Abs ( pLocZ - 1 ) < mapZ){pLocZ -= 1; MoveFunct();}
-					}
-					if (Input.GetAxis("UPDO") > 0) {
-						if (Mathf.Abs ( pLocZ + 1 ) < mapZ){pLocZ += 1; MoveFunct();}
-					}
-					if (Input.GetAxis("ULDR") < 0) {
-						if (Mathf.Abs ( pLocX - 1 ) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX -= 1; pLocZ += 1; MoveFunct();}
-					}
-					if (Input.GetAxis("ULDR") > 0) {
-						if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ - 1) < mapZ)	{pLocX += 1; pLocZ -= 1; MoveFunct();}
-					}
-					if (Input.GetAxis("DLUR") < 0) {
-						if (Mathf.Abs ( pLocX - 1 ) < mapX && Mathf.Abs (pLocZ - 1) < mapZ)	{pLocX -= 1; pLocZ -= 1; MoveFunct();}
-					}
-					if (Input.GetAxis("DLUR") > 0) {
-						if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX += 1; pLocZ += 1; MoveFunct();}
-					}
-					if (Input.GetAxis("Wait") > 0) 
-					{MoveFunct();}
-					
-					
-					
-				}
+		if (gameOver) {
+			if (Input.anyKeyDown) {Application.Quit();}
+			gameOverText.GetComponent<TextMesh>().text = "Yo' ass is dead!";
+				// annoying ass blink loop
+			if (blinkUp) {
+				gameOverText.GetComponent<TextMesh>().fontSize++;
+				if (gameOverText.GetComponent<TextMesh>().fontSize >= 120) {blinkUp = false;}
+			}
+			else {
+				gameOverText.GetComponent<TextMesh>().fontSize--;
+				if (gameOverText.GetComponent<TextMesh>().fontSize < 80) {blinkUp = true;}
 			}
 		}
-		// refreshes stats every 15 frames
-		if (autoticker < 15){autoticker++;}
-		else 
-		{
-			
-			powerNum.GetComponent<TextMesh>().text = power.ToString();
-			endNum.GetComponent<TextMesh>().text = endurance.ToString();
-			speedNum.GetComponent<TextMesh>().text = speed.ToString();
-			jbonusNum.GetComponent<TextMesh>().text = joustbonus.ToString();
-			moveNum.GetComponent<TextMesh>().text = movement.ToString();
-			HPNum.GetComponent<TextMesh>().text = playHP.ToString();
-			EXPNum.GetComponent<TextMesh>().text = experience.ToString();
-			levelNum.GetComponent<TextMesh>().text = level.ToString();
-			killsNum.GetComponent<TextMesh>().text = killCount.ToString();
-			
-			autoticker = 0;
+
+		else {
+
+			if (countdown > 0) {countdown -= Time.deltaTime;}
+			else 
+			{
+				if (movement <= 0){movement = speed;}
+				else		 
+				{
+					cooldown -= Time.deltaTime;
+					// checks for key input and if correct, moves
+					if (Input.anyKeyDown && cooldown < 0)
+					{
+						cooldown = 0.1f;
+						oldLocX = pLocX;
+						oldLocZ = pLocZ;
+						if (Input.GetAxis("LERI") < 0) { 
+							if (Mathf.Abs ( pLocX - 1 ) < mapX) {pLocX -= 1; MoveFunct();}
+						}
+						if (Input.GetAxis("LERI") > 0) {
+							if (Mathf.Abs ( pLocX + 1 ) < mapX) {pLocX += 1; MoveFunct();}
+						}
+						if (Input.GetAxis("UPDO") < 0) {
+							if (Mathf.Abs ( pLocZ - 1 ) < mapZ){pLocZ -= 1; MoveFunct();}
+						}
+						if (Input.GetAxis("UPDO") > 0) {
+							if (Mathf.Abs ( pLocZ + 1 ) < mapZ){pLocZ += 1; MoveFunct();}
+						}
+						if (Input.GetAxis("ULDR") < 0) {
+							if (Mathf.Abs ( pLocX - 1 ) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX -= 1; pLocZ += 1; MoveFunct();}
+						}
+						if (Input.GetAxis("ULDR") > 0) {
+							if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ - 1) < mapZ)	{pLocX += 1; pLocZ -= 1; MoveFunct();}
+						}
+						if (Input.GetAxis("DLUR") < 0) {
+							if (Mathf.Abs ( pLocX - 1 ) < mapX && Mathf.Abs (pLocZ - 1) < mapZ)	{pLocX -= 1; pLocZ -= 1; MoveFunct();}
+						}
+						if (Input.GetAxis("DLUR") > 0) {
+							if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX += 1; pLocZ += 1; MoveFunct();}
+						}
+						if (Input.GetAxis("Wait") > 0) 
+						{MoveFunct();}
+						
+						
+						
+					}
+				}
+			}
+			// refreshes stats every 15 frames
+			if (autoticker < 15){autoticker++;}
+			else 
+			{
+				
+				powerNum.GetComponent<TextMesh>().text = power.ToString();
+				endNum.GetComponent<TextMesh>().text = endurance.ToString();
+				speedNum.GetComponent<TextMesh>().text = speed.ToString();
+				jbonusNum.GetComponent<TextMesh>().text = joustbonus.ToString();
+				moveNum.GetComponent<TextMesh>().text = movement.ToString();
+				HPNum.GetComponent<TextMesh>().text = playHP.ToString();
+				EXPNum.GetComponent<TextMesh>().text = experience.ToString();
+				levelNum.GetComponent<TextMesh>().text = level.ToString();
+				killsNum.GetComponent<TextMesh>().text = killCount.ToString();
+				
+				autoticker = 0;
+			}
 		}
 	}
 
@@ -179,6 +196,8 @@ public class GCScript : MonoBehaviour {
 		}
 		if (ranType < 40) {newMonType = goblin;}
 		if (40 < ranType && ranType < 70) {newMonType = ork;}
+		if (70 < ranType && ranType < 120) {newMonType = krusher;}
+		
 		else {newMonType = goblin;}
 		Instantiate(newMonType, new Vector3(newMonX*5f, 2.5f, newMonZ*5f), Quaternion.identity);
 

@@ -6,6 +6,7 @@ public class MonControl : MonoBehaviour {
 	public int monX, monZ, monPow, monEnd, monSpe, monHP, oldX, oldZ, dLX, dLZ, monMove, monExp, qad;
 	public Transform monType;
 	private GoTweenChain chain;
+	private float ticker;
 	public bool monTurn = false;
 	public bool obstacle = false;
 	private GameObject gc, player, enemy;
@@ -31,19 +32,22 @@ public class MonControl : MonoBehaviour {
 	void Update () {
 		if (monTurn)
 		{
-
+			monMove = monSpe;
+			dLX = 0;
+			dLZ = 0;
+			chain = new GoTweenChain();
 			while (monMove > 0){
-				// call gamecontroller script to determine direction to player
-				monMove--;
+				dLX = 0;
+				dLZ = 0;
 				obstacle = false;
-				gc = GameObject.FindGameObjectWithTag("GameController");
+				gc = GameObject.FindGameObjectWithTag("GameController"); // call gamecontroller script to determine direction to player
 				GCScript Script1 = gc.GetComponent<GCScript>();
-				if (Script1.pLocX > monX) {dLX = 1;}
+				if (Script1.pLocX > monX) {dLX += 1;}
 				if (Script1.pLocX == monX) {dLX = 0;}
-				if (Script1.pLocX < monX) {dLX = -1;}
-				if (Script1.pLocZ > monZ) {dLZ = 1;}
+				if (Script1.pLocX < monX) {dLX -= 1;}
+				if (Script1.pLocZ > monZ) {dLZ += 1;}
 				if (Script1.pLocZ == monZ) {dLZ = 0;}
-				if (Script1.pLocZ < monZ) {dLZ = -1;}
+				if (Script1.pLocZ < monZ) {dLZ -= 1;}
 				if (monX + dLX == Script1.pLocX && monZ + dLZ == Script1.pLocZ) 
 				{
 					dLX = 0;
@@ -58,24 +62,22 @@ public class MonControl : MonoBehaviour {
 				{
 					
 					MonControl Script2 = enemy.GetComponent<MonControl>();
-					if (Script2.monX == monX+dLX && Script2.monZ == monZ+dLZ){obstacle = true;}
+					if (Script2.monX == monX+dLX && Script2.monZ == monZ+dLZ){dLX = 0; dLZ = 0;}
 					
 				}
-				// move
-				if (obstacle) {}
-				else {
+
 					monX = monX + dLX;
 					monZ = monZ + dLZ;
 					GoTween monMoveTween = new GoTween(this.transform, 0.2f, new GoTweenConfig().position (new Vector3( dLX * 5, 0, dLZ * 5 ), true));
-					chain = new GoTweenChain();
+					
 					chain.append(monMoveTween);
-					chain.play();
 
-				}
-				if (monMove <= 0) {monTurn = false;}
+				monMove--;
 			}
-
+			monTurn = false;
+			chain.play();
 		}
-	
+
 	}
+
 }
