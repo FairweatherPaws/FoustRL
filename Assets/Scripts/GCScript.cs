@@ -198,7 +198,7 @@ public class GCScript : MonoBehaviour {
 		if (40 < ranType && ranType < 70) {newMonType = ork;}
 		if (70 < ranType && ranType < 120) {newMonType = krusher;}
 		
-		else {newMonType = goblin;}
+
 		Instantiate(newMonType, new Vector3(newMonX*5f, 2.5f, newMonZ*5f), Quaternion.identity);
 
 	}
