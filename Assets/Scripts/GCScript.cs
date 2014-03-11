@@ -6,12 +6,13 @@ public class GCScript : MonoBehaviour {
 	private float autoticker = 0;
 	private GoTweenChain chain;
 	public int power, endurance, speed, joustbonus, playHP, experience, pLocX, pLocZ, oldLocX, oldLocZ, dLocX, dLocZ, level, movement, qad;
-	public GameObject powerNum, endNum, speedNum, jbonusNum, moveNum, HPNum, EXPNum, levelNum, player, enemy, stabVictim;
+	public int mapX, mapZ, killCount;
+	public GameObject powerNum, endNum, speedNum, jbonusNum, moveNum, HPNum, EXPNum, levelNum, killsNum, player, enemy, stabVictim;
 	private int[,] mapGrid, playerLoc;
 	private bool conflict = false;
-	private float countdown;
+	private float countdown, cooldown;
 	public bool gameOver = false;
-	public int newMonX, newMonZ, ranSide, ranSquare, ranType;
+	public int newMonX, newMonZ, ranSide, ranSquareX, ranSquareZ, ranType;
 	public Transform newMonType, goblin, ork;
 	
 	// Use this for initialization
@@ -26,8 +27,9 @@ public class GCScript : MonoBehaviour {
 		playHP = 10;
 		speed = 2;
 		joustbonus = 0;
+		killCount = 0;
 		countdown = 0;
-
+		cooldown = 0;
 	}
 	
 	// Update is called once per frame
@@ -39,33 +41,42 @@ public class GCScript : MonoBehaviour {
 			if (movement <= 0){movement = speed;}
 			else		 
 			{
-
+				cooldown -= Time.deltaTime;
 				// checks for key input and if correct, moves
-				if (Input.anyKeyDown)
+				if (Input.anyKeyDown && cooldown < 0)
 				{
+					cooldown = 0.1f;
 					oldLocX = pLocX;
 					oldLocZ = pLocZ;
-					if (Input.GetAxis("LERI") < 0)
-					{pLocX -= 1; MoveFunct();}
-					if (Input.GetAxis("LERI") > 0)
-					{pLocX += 1; MoveFunct();}
-					if (Input.GetAxis("UPDO") < 0)
-					{pLocZ -= 1; MoveFunct();}
-					if (Input.GetAxis("UPDO") > 0)
-					{pLocZ += 1; MoveFunct();}
-					if (Input.GetAxis("ULDR") < 0)
-					{pLocX -= 1; pLocZ += 1; MoveFunct();}
-					if (Input.GetAxis("ULDR") > 0)
-					{pLocX += 1; pLocZ -= 1; MoveFunct();}
-					if (Input.GetAxis("DLUR") < 0)
-					{pLocX -= 1; pLocZ -= 1; MoveFunct();}
-					if (Input.GetAxis("DLUR") > 0)
-					{pLocX += 1; pLocZ += 1; MoveFunct();}
+					if (Input.GetAxis("LERI") < 0) { 
+						if (Mathf.Abs ( pLocX - 1 ) < mapX) {pLocX -= 1; MoveFunct();}
+					}
+					if (Input.GetAxis("LERI") > 0) {
+						if (Mathf.Abs ( pLocX + 1 ) < mapX) {pLocX += 1; MoveFunct();}
+					}
+					if (Input.GetAxis("UPDO") < 0) {
+						if (Mathf.Abs ( pLocZ - 1 ) < mapZ){pLocZ -= 1; MoveFunct();}
+					}
+					if (Input.GetAxis("UPDO") > 0) {
+						if (Mathf.Abs ( pLocZ + 1 ) < mapZ){pLocZ += 1; MoveFunct();}
+					}
+					if (Input.GetAxis("ULDR") < 0) {
+						if (Mathf.Abs ( pLocX - 1 ) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX -= 1; pLocZ += 1; MoveFunct();}
+					}
+					if (Input.GetAxis("ULDR") > 0) {
+						if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ - 1) < mapZ)	{pLocX += 1; pLocZ -= 1; MoveFunct();}
+					}
+					if (Input.GetAxis("DLUR") < 0) {
+						if (Mathf.Abs ( pLocX - 1 ) < mapX && Mathf.Abs (pLocZ - 1) < mapZ)	{pLocX -= 1; pLocZ -= 1; MoveFunct();}
+					}
+					if (Input.GetAxis("DLUR") > 0) {
+						if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX += 1; pLocZ += 1; MoveFunct();}
+					}
 					if (Input.GetAxis("Wait") > 0) 
 					{MoveFunct();}
-				
-
-
+					
+					
+					
 				}
 			}
 		}
@@ -82,6 +93,7 @@ public class GCScript : MonoBehaviour {
 			HPNum.GetComponent<TextMesh>().text = playHP.ToString();
 			EXPNum.GetComponent<TextMesh>().text = experience.ToString();
 			levelNum.GetComponent<TextMesh>().text = level.ToString();
+			killsNum.GetComponent<TextMesh>().text = killCount.ToString();
 			
 			autoticker = 0;
 		}
@@ -115,11 +127,11 @@ public class GCScript : MonoBehaviour {
 			if (dLocZ > 1) {dLocZ = 1;}
 			if (dLocZ < -1) {dLocZ = -1;}
 			
-			GoTween playMoveTween = new GoTween(player.transform, 0.2f, new GoTweenConfig().position (new Vector3( dLocX * 5, 0, dLocZ * 5 ), true));
+			GoTween playMoveTween = new GoTween(player.transform, 0.2f, new GoTweenConfig().position (new Vector3( pLocX * 5, 2.5f, pLocZ * 5 )));
 			chain = new GoTweenChain();
 			chain.append(playMoveTween);
 			chain.play();
-			countdown = 0.25f;
+			countdown = 0f;
 			if (movement <= 0) {MonSpawn ();}
 		}
 	}
@@ -129,11 +141,11 @@ public class GCScript : MonoBehaviour {
 		qad = 0;
 		if (Script3.monEnd <= power * joustbonus) {qad = power * joustbonus;}
 		if (Script3.monHP > qad){Script3.monHP = Script3.monHP - qad;}
-		else {experience += Script3.monExp; Destroy(stabVictim);}
+		else {experience += Script3.monExp; Destroy(stabVictim); killCount++;}
 		// add level up flag here
 		joustbonus = 0;
 		conflict = false;
-		countdown = 0.25f;
+		countdown = 0f;
 		if (movement <= 0) {MonSpawn ();}
 	}
 
@@ -148,15 +160,23 @@ public class GCScript : MonoBehaviour {
 			experience -= (2*level+1)*10;
 			level++;
 
-		}
 
+		}
+	redux:
 		ranSide = Random.Range (0, 3);
-		ranSquare = Random.Range (0, 10);
+		ranSquareX = Random.Range (1, mapX*2 - 1);
+		ranSquareZ = Random.Range (1, mapZ*2 - 1);
 		ranType = Random.Range (0, (level+1)*25);
-		if (ranSide == 0) {newMonX = -5; newMonZ = ranSquare - 5;}
-		if (ranSide == 1) {newMonZ = 5; newMonX = ranSquare - 5;}
-		if (ranSide == 2) {newMonX = 5; newMonZ = ranSquare - 5;}
-		if (ranSide == 3) {newMonZ = -5; newMonX = ranSquare - 5;}
+		if (ranSide == 0) {newMonX = -mapX + 1; newMonZ = ranSquareZ - mapZ;} // spawn on a random tile on edge clockwise from left
+		if (ranSide == 1) {newMonZ = mapZ - 1; newMonX = ranSquareX - mapX;} 
+		if (ranSide == 2) {newMonX = mapX - 1; newMonZ = ranSquareZ - mapZ;}
+		if (ranSide == 3) {newMonZ = -mapZ + 1; newMonX = ranSquareX - mapX;}
+		if (newMonX == pLocX && newMonZ == pLocZ) {goto redux;} // do not spawn on player
+		foreach(GameObject enemy in GameObject.FindGameObjectsWithTag("foe")) // do not spawn on other enemy
+		{
+			MonControl Script1 = enemy.GetComponent<MonControl>();
+			if (Script1.monX == newMonX && Script1.monZ == newMonZ){goto redux;}	
+		}
 		if (ranType < 40) {newMonType = goblin;}
 		if (40 < ranType && ranType < 70) {newMonType = ork;}
 		else {newMonType = goblin;}

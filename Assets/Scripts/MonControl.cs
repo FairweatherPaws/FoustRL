@@ -31,6 +31,7 @@ public class MonControl : MonoBehaviour {
 	void Update () {
 		if (monTurn)
 		{
+
 			while (monMove > 0){
 				// call gamecontroller script to determine direction to player
 				monMove--;
@@ -69,6 +70,7 @@ public class MonControl : MonoBehaviour {
 					chain = new GoTweenChain();
 					chain.append(monMoveTween);
 					chain.play();
+
 				}
 				if (monMove <= 0) {monTurn = false;}
 			}
