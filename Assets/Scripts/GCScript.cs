@@ -11,7 +11,7 @@ public class GCScript : MonoBehaviour {
 	private int[,] mapGrid, playerLoc;
 	private bool conflict = false;
 	private bool blinkUp = true;
-	private float countdown, cooldown;
+	private float countdown, cooldown, ticker;
 	public bool gameOver = false;
 	public int newMonX, newMonZ, ranSide, ranSquareX, ranSquareZ, ranType;
 	public Transform newMonType, goblin, ork, krusher;
@@ -124,7 +124,7 @@ public class GCScript : MonoBehaviour {
 
 			MonControl Script1 = enemy.GetComponent<MonControl>();
 			if (Script1.monX == pLocX && Script1.monZ == pLocZ){conflict = true; stabVictim = enemy;}
-			if (movement <= 0) {Script1.monTurn = true; Script1.monMove = Script1.monSpe;}
+			//if (movement <= 0) {Script1.monTurn = true;}
 
 		}
 
@@ -167,6 +167,16 @@ public class GCScript : MonoBehaviour {
 	}
 
 	void MonSpawn () {
+
+		foreach(GameObject enemy in GameObject.FindGameObjectsWithTag("foe"))
+		{
+			ticker = 0.02f;
+			while (ticker > 0) { ticker -= Time.deltaTime;}
+			MonControl Script1 = enemy.GetComponent<MonControl>();
+			if (movement <= 0) {Script1.monTurn = true;}
+			
+		}
+
 
 		if (experience >= (2*level+1)*10) 
 		{
