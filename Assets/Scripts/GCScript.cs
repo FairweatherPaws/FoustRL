@@ -208,7 +208,7 @@ public class GCScript : MonoBehaviour {
 			ticker = 0.02f;
 			while (ticker > 0) { ticker -= Time.deltaTime;}
 			MonControl Script1 = enemy.GetComponent<MonControl>();
-			if (movement <= 0) {Script1.monTurn = true;}
+			if (movement <= 0) {Script1.monTurn = true; Script1.runOnce = true;}
 			
 		}
 
@@ -245,7 +245,7 @@ public class GCScript : MonoBehaviour {
 		if (70 < ranType && ranType < 120) {newMonType = krusher;}
 		
 
-		if (monCount < 0) {Instantiate(newMonType, new Vector3(newMonX*5f, 2.5f, newMonZ*5f), Quaternion.identity);}
+		if (monCount < 20) {Instantiate(newMonType, new Vector3(newMonX*5f, 2.5f, newMonZ*5f), Quaternion.identity);}
 
 		if (spawnCount < level) {spawnCount++; goto redux;}
 

@@ -14,6 +14,7 @@ public class DamageEffect : MonoBehaviour {
 		GCScript Script1 = gc.GetComponent<GCScript>();
 		this.GetComponent<TextMesh>().text = Script1.qad.ToString();
 		color = this.renderer.material.color;
+
 	}
 
 
@@ -31,6 +32,7 @@ public class DamageEffect : MonoBehaviour {
 		// if (resize > 0.02f) {this.GetComponent<TextMesh>().fontSize++; resize = 0;}
 		if (selfDestructTimer > 0.6f) {color.a -= 0.05f; this.renderer.material.color = color;}
 		if (selfDestructTimer > 1) {Destroy(this.gameObject);}
+		transform.position = transform.position * 1.01f;
 	
 	}
 }

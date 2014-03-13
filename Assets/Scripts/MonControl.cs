@@ -4,11 +4,12 @@ using System.Collections;
 public class MonControl : MonoBehaviour {
 
 	public int monX, monZ, monPow, monEnd, monSpe, monHP, oldX, oldZ, dLX, dLZ, monMove, monExp, qad;
-	public Transform monType;
+	public Transform monType, damageEffect;
 	private GoTweenChain chain;
 	private float ticker;
 	public bool monTurn = false;
 	public bool obstacle = false;
+	public bool runOnce = false;
 	private GameObject gc, player, enemy;
 
 	// Use this for initialization
@@ -32,12 +33,12 @@ public class MonControl : MonoBehaviour {
 	void Update () {
 		if (monTurn)
 		{
-			ticker = 0.2f;
-			monMove = monSpe;
+
+			if (runOnce) {monMove = monSpe; runOnce = false; chain = new GoTweenChain(); ticker = 0.1f;}
 			dLX = 0;
 			dLZ = 0;
-			chain = new GoTweenChain();
-			while (monMove > 0){
+
+			if (monMove > 0){
 				if (ticker > 0) {ticker -= Time.deltaTime;}
 				else {
 					dLX = 0;
@@ -55,10 +56,19 @@ public class MonControl : MonoBehaviour {
 					{
 						dLX = 0;
 						dLZ = 0;
-						qad = monPow - Script1.endurance;
+						qad = Random.Range (monPow, monPow * 2) - Script1.endurance;
 						if (qad > 0) { Script1.playHP = Script1.playHP - qad; }
 						if (Script1.playHP <= 0) {Script1.gameOver = true; Script1.HPNum.GetComponent<TextMesh>().text = Script1.playHP.ToString();}
 						obstacle = true;
+						if (qad > 0)
+						{
+							Transform damEff = Instantiate(damageEffect, new Vector3(
+								(this.transform.position.x + Script1.player.transform.position.x) / 2 * 0.95f, 5f, 
+								(this.transform.position.z + Script1.player.transform.position.z) / 2 * 0.95f), 
+							            Quaternion.Euler(90, 30, 0)) as Transform;
+							damEff.gameObject.GetComponent<TextMesh>().text = qad.ToString();
+
+						}
 
 					}
 					// make sure no enemies are in the way
@@ -77,10 +87,12 @@ public class MonControl : MonoBehaviour {
 						chain.append(monMoveTween);
 
 					monMove--;
+					ticker = 0.2f;
 				}
 			}
-			monTurn = false;
-			chain.play();
+			else {chain.play();
+				monTurn = false;}
+
 		}
 
 	}

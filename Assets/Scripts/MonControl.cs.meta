@@ -2,7 +2,9 @@ fileFormatVersion: 2
 guid: 97d52604d89dc5e459da9c4d283935ed
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - monType: {instanceID: 0}
+  - damageEffect: {fileID: 400000, guid: c09513e6fc34498428041a5f57a38ffe, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
