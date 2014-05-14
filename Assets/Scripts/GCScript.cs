@@ -5,19 +5,21 @@ public class GCScript : MonoBehaviour {
 
 	private float autoticker = 0;
 	private GoTweenChain chain;
-	public int power, endurance, speed, joustbonus, playHP, experience, pLocX, pLocZ, oldLocX, oldLocZ, dLocX, dLocZ, level, movement, qad;
-	public int mapX, mapZ, killCount, spawnCount, monCount;
-	public GameObject powerNum, endNum, speedNum, jbonusNum, moveNum, HPNum, EXPNum, levelNum, killsNum, gameOverText, player, enemy, stabVictim;
-	public GameObject playerChargeHalo, playerChargeHaloSuper, playerChargeHaloThree;
+	public int power, endurance, speed, joustbonus, playHP, experience, pLocX, pLocZ, oldLocX, oldLocZ, dLocX, dLocZ, level, movement, totalAggro;
+	public int mapX, mapZ, killCount, spawnCount, monCount, maxPierce, curPierce;
+	public GameObject powerNum, endNum, speedNum, jbonusNum, moveNum, HPNum, EXPNum, levelNum, killsNum, gameOverText, player, enemy, stabVictim, stabVic2;
+	public GameObject playerChargeHalo, playerChargeHaloSuper, playerChargeHaloThree, background, prevStabVic;
 	private int[,] mapGrid, playerLoc;
 	private bool conflict = false;
 	private bool blinkUp = true;
 	private bool rotateCW = true;
+	private bool piercingBlow = false;
+	private bool hasPierced = false;
 	private float countdown, cooldown, ticker;
 	public bool gameOver = false;
 	public int newMonX, newMonZ, ranSide, ranSquareX, ranSquareZ, ranType;
 	public Transform newMonType, goblin, ork, krusher, damageEffect, gOT;
-	
+
 	// Use this for initialization
 	void Start () {
 		pLocX = 0;
@@ -33,12 +35,13 @@ public class GCScript : MonoBehaviour {
 		killCount = 0;
 		countdown = 0;
 		cooldown = 0;
+		maxPierce = 1;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (gameOver) {
-			if (Input.anyKeyDown) {Application.Quit();}
+			if (Input.anyKeyDown) {Application.LoadLevel (Application.loadedLevelName);}
 			gameOverText.GetComponent<TextMesh>().text = "Yo' ass is dead!";
 				// annoying ass blink loop
 			if (blinkUp) {
@@ -61,9 +64,19 @@ public class GCScript : MonoBehaviour {
 
 		else {
 
-			if (countdown > 0) {countdown -= Time.deltaTime;}
+			if (countdown > 0) {
+				countdown -= Time.deltaTime;
+				Color bgShift = background.renderer.material.color;
+				if (bgShift.r < 1) {bgShift.r += 5 * Time.deltaTime;}
+				if (bgShift.g > 0) {bgShift.g -= 5 * Time.deltaTime;}
+				background.renderer.material.color = bgShift;
+			}
 			else 
 			{
+				Color bgShift = background.renderer.material.color;
+				if (bgShift.r > 0) {bgShift.r -= 5 * Time.deltaTime;}
+				if (bgShift.g < 1) {bgShift.g += 5 * Time.deltaTime;}
+				background.renderer.material.color = bgShift;
 				// playerChargeHalo.transform.position = new Vector3(player.transform.position.x * 1.05f, 5.5f, player.transform.position.z * 1.05f);
 				playerChargeHalo.transform.position = player.transform.position * 1.05f;
 				playerChargeHalo.light.intensity = joustbonus;
@@ -87,28 +100,36 @@ public class GCScript : MonoBehaviour {
 						cooldown = 0.1f;
 						oldLocX = pLocX;
 						oldLocZ = pLocZ;
-						if (Input.GetAxis("LERI") < 0) { 
+						if (Input.GetAxis("LERI") < 0) {
+							player.transform.rotation = Quaternion.Euler(90,90,0);
 							if (Mathf.Abs ( pLocX - 1 ) < mapX) {pLocX -= 1; MoveFunct();}
 						}
 						if (Input.GetAxis("LERI") > 0) {
+							player.transform.rotation = Quaternion.Euler(90,270,0);
 							if (Mathf.Abs ( pLocX + 1 ) < mapX) {pLocX += 1; MoveFunct();}
 						}
 						if (Input.GetAxis("UPDO") < 0) {
+							player.transform.rotation = Quaternion.Euler(90,0,0);
 							if (Mathf.Abs ( pLocZ - 1 ) < mapZ){pLocZ -= 1; MoveFunct();}
 						}
 						if (Input.GetAxis("UPDO") > 0) {
+							player.transform.rotation = Quaternion.Euler(90,180,0);
 							if (Mathf.Abs ( pLocZ + 1 ) < mapZ){pLocZ += 1; MoveFunct();}
 						}
 						if (Input.GetAxis("ULDR") < 0) {
+							player.transform.rotation = Quaternion.Euler(90,135,0);
 							if (Mathf.Abs ( pLocX - 1 ) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX -= 1; pLocZ += 1; MoveFunct();}
 						}
 						if (Input.GetAxis("ULDR") > 0) {
+							player.transform.rotation = Quaternion.Euler(90,315,0);
 							if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ - 1) < mapZ)	{pLocX += 1; pLocZ -= 1; MoveFunct();}
 						}
 						if (Input.GetAxis("DLUR") < 0) {
+							player.transform.rotation = Quaternion.Euler(90,45,0);
 							if (Mathf.Abs ( pLocX - 1 ) < mapX && Mathf.Abs (pLocZ - 1) < mapZ)	{pLocX -= 1; pLocZ -= 1; MoveFunct();}
 						}
 						if (Input.GetAxis("DLUR") > 0) {
+							player.transform.rotation = Quaternion.Euler(90,225,0);
 							if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX += 1; pLocZ += 1; MoveFunct();}
 						}
 						if (Input.GetAxis("Wait") > 0) 
@@ -179,21 +200,61 @@ public class GCScript : MonoBehaviour {
 
 	}
 	void FightFunct () {
-
+		
+		totalAggro = Random.Range (power * joustbonus, 2 * power * joustbonus); //initial attack damage
+		int plusoneX = pLocX - oldLocX; // get attack direction
+		int plusoneZ = pLocZ - oldLocZ;
+		curPierce = maxPierce;
+	doubleAttack: // piercing checkpoint
+		piercingBlow = false; // prevents autoloop
 		MonControl Script3 = stabVictim.GetComponent<MonControl>();
-		qad = Random.Range (power * joustbonus, 2 * power * joustbonus);
-		if (Script3.monEnd >= qad) {qad = 0;}
-		else {qad -= Script3.monEnd;}
-		if (Script3.monHP > qad){Script3.monHP = Script3.monHP - qad;}
-		else {experience += Script3.monExp; Destroy(stabVictim); killCount++;}
-		if (qad > 0) 
+		if (Script3.monEnd >= totalAggro) {totalAggro = 0;} // check if DR too high
+		else {totalAggro -= Script3.monEnd;} // if not, reduce damage by DR
+		if (Script3.monHP > totalAggro){ // do they survive?
+			Script3.monHP = Script3.monHP - totalAggro; // if so, reduce damage from HP
+		}
+		else {
+			totalAggro -= Script3.monHP; //if not, reduce damage by HP
+			experience += Script3.monExp; //give XP
+			Destroy(stabVictim); //slay
+			killCount++; //ding
+			pLocX += plusoneX;
+			pLocZ += plusoneZ;
+			if (curPierce > 0) {
+				foreach(GameObject enemy in GameObject.FindGameObjectsWithTag("foe")) //check if anyone's behind the dead guy
+				{
+					MonControl Script1 = enemy.GetComponent<MonControl>();
+					if (Script1.monX == pLocX && Script1.monZ == pLocZ){ // if someone is
+						piercingBlow = true; // loop trigger
+						stabVic2 = enemy; // sets new target
+						curPierce--;
+					}
+					//if (movement <= 0) {Script1.monTurn = true;}
+				}
+			}
+
+		}
+		if (totalAggro > 0) 
 		{
-			Instantiate(damageEffect, new Vector3(
-				(stabVictim.transform.position.x + player.transform.position.x) / 2 * 0.95f, 5f, 
-				(stabVictim.transform.position.z + player.transform.position.z) / 2 * 0.95f), 
-			            Quaternion.Euler(90, 330, 0));
+			if (hasPierced) {
+				Instantiate(damageEffect, new Vector3(
+					(stabVictim.transform.position.x + prevStabVic.transform.position.x) / 2 * 0.95f, 
+					5f, 
+					(stabVictim.transform.position.z + prevStabVic.transform.position.z) / 2 * 0.95f), 
+				            Quaternion.Euler(90, 330, 0));
+
+			}
+			else {
+				Instantiate(damageEffect, new Vector3(
+					(stabVictim.transform.position.x + player.transform.position.x) / 2 * 0.95f, 
+					5f, 
+					(stabVictim.transform.position.z + player.transform.position.z) / 2 * 0.95f), 
+				            Quaternion.Euler(90, 330, 0));
+				}
+			hasPierced = false;
 		}
 		// add level up flag here
+		if (piercingBlow) {prevStabVic = stabVictim; stabVictim = stabVic2; hasPierced = true; goto doubleAttack;}
 		joustbonus = 0;
 		conflict = false;
 		countdown = 0f;
@@ -202,6 +263,8 @@ public class GCScript : MonoBehaviour {
 	}
 
 	void MonSpawn () {
+
+		countdown = 0.5f;
 
 		foreach(GameObject enemy in GameObject.FindGameObjectsWithTag("foe"))
 		{

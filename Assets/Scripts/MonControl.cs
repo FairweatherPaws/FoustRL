@@ -6,7 +6,7 @@ public class MonControl : MonoBehaviour {
 	public int monX, monZ, monPow, monEnd, monSpe, monHP, oldX, oldZ, dLX, dLZ, monMove, monExp, qad;
 	public Transform monType, damageEffect;
 	private GoTweenChain chain;
-	private float ticker;
+	private float ticker, rotAm, rotOrig;
 	public bool monTurn = false;
 	public bool obstacle = false;
 	public bool runOnce = false;
@@ -27,6 +27,7 @@ public class MonControl : MonoBehaviour {
 		monHP = Script2.monHP;
 		monExp = Script2.expYield;
 		monMove = monSpe;
+		rotAm = 0;
 	}
 	
 	// Update is called once per frame
@@ -34,7 +35,13 @@ public class MonControl : MonoBehaviour {
 		if (monTurn)
 		{
 
-			if (runOnce) {monMove = monSpe; runOnce = false; chain = new GoTweenChain(); ticker = 0.1f;}
+			if (runOnce) {
+				monMove = monSpe; 
+				runOnce = false; 
+				chain = new GoTweenChain(); 
+				ticker = 0.1f; 
+				rotOrig = transform.rotation.eulerAngles.y;
+			}
 			dLX = 0;
 			dLZ = 0;
 
@@ -43,6 +50,9 @@ public class MonControl : MonoBehaviour {
 				else {
 					dLX = 0;
 					dLZ = 0;
+
+
+
 					obstacle = false;
 					gc = GameObject.FindGameObjectWithTag("GameController"); // call gamecontroller script to determine direction to player
 					GCScript Script1 = gc.GetComponent<GCScript>();
@@ -52,6 +62,19 @@ public class MonControl : MonoBehaviour {
 					if (Script1.pLocZ > monZ) {dLZ += 1;}
 					if (Script1.pLocZ == monZ) {dLZ = 0;}
 					if (Script1.pLocZ < monZ) {dLZ -= 1;}
+					if (dLX == 0 && dLZ < 0) {rotAm = 0;}
+					if (dLX < 0 && dLZ < 0) {rotAm = 45;}
+					if (dLX < 0 && dLZ == 0) {rotAm = 90;}
+					if (dLX < 0 && dLZ > 0) {rotAm = 135;}
+					if (dLX == 0 && dLZ > 0) {rotAm = 180;}
+					if (dLX > 0 && dLZ > 0) {rotAm = 225;}
+					if (dLX > 0 && dLZ == 0) {rotAm = 270;}
+					if (dLX > 0 && dLZ < 0) {rotAm = 315;}
+					//transform.rotation = Quaternion.Euler(0,rotAm,0);
+					float rotDelta = rotAm - rotOrig;
+					rotOrig = rotAm;
+					if (rotDelta < -180) {rotDelta += 360;}
+					if (rotDelta > 180) {rotDelta -= 360;}
 					if (monX + dLX == Script1.pLocX && monZ + dLZ == Script1.pLocZ) 
 					{
 						dLX = 0;
@@ -80,11 +103,12 @@ public class MonControl : MonoBehaviour {
 
 					}
 
-						monX = monX + dLX;
-						monZ = monZ + dLZ;
-						GoTween monMoveTween = new GoTween(this.transform, 0.2f, new GoTweenConfig().position (new Vector3( dLX * 5, 0, dLZ * 5 ), true));
-						
-						chain.append(monMoveTween);
+					monX = monX + dLX;
+					monZ = monZ + dLZ;
+					GoTween monMoveTween = new GoTween(this.transform, 0.3f/monSpe, new GoTweenConfig().position (new Vector3( dLX * 5, 0, dLZ * 5 ), true));
+					GoTween monRotTween = new GoTween(this.transform, 0.15f/monSpe, new GoTweenConfig().eulerAngles (new Vector3( 0, rotDelta, 0 ), true));
+					chain.append(monRotTween);
+					chain.append(monMoveTween);
 
 					monMove--;
 					ticker = 0.2f;

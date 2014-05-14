@@ -12,8 +12,9 @@ public class DamageEffect : MonoBehaviour {
 		selfDestructTimer = 0;
 		gc = GameObject.FindGameObjectWithTag("GameController");
 		GCScript Script1 = gc.GetComponent<GCScript>();
-		this.GetComponent<TextMesh>().text = Script1.qad.ToString();
+		this.GetComponent<TextMesh>().text = Script1.totalAggro.ToString();
 		color = this.renderer.material.color;
+		Debug.Log(transform.position);
 
 	}
 
