@@ -4,17 +4,22 @@ using System.Collections;
 public class SpinAttackButton : MonoBehaviour {
 
 	private GameObject gc;
-	public bool highlightTrigger = false;
-	public bool dimTrigger = false;
+	public bool highlightTrigger = true;
 	private Color oldColour;
 
 	// Use this for initialization
 	void Start () {
-
+		highlightTrigger = true;
 	}
 	
 	// Update is called once per frame
 	void Update () {
+		gc = GameObject.FindGameObjectWithTag("GameController");
+		GCScript Script1 = gc.GetComponent<GCScript>();
+		if (Script1.joustbonus > 4 && highlightTrigger == true) {
+			renderer.material.color = new Color(0.8f, 0.8f, 0.8f);
+			highlightTrigger = false;
+		}
 	}
 
 	void OnMouseEnter() {
@@ -40,5 +45,6 @@ public class SpinAttackButton : MonoBehaviour {
 			renderer.material.color = new Color(0.8f, 0.8f, 0.8f);
 		}
 		else {renderer.material.color = new Color(0.5f, 0.5f, 0.5f);}
+		highlightTrigger = true;
 	}
 }
