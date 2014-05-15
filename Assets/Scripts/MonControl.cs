@@ -7,10 +7,14 @@ public class MonControl : MonoBehaviour {
 	public Transform monType, damageEffect;
 	private GoTweenChain chain;
 	private float ticker, rotAm, rotOrig;
+	private float spinDie = 0.8f;
 	public bool monTurn = false;
 	public bool obstacle = false;
 	public bool runOnce = false;
+	public bool spinDying = false;
+	private bool spinOnce = true;
 	private GameObject gc, player, enemy;
+	public GameObject bloodEffect;
 
 	// Use this for initialization
 	void Awake () {
@@ -118,7 +122,36 @@ public class MonControl : MonoBehaviour {
 				monTurn = false;}
 
 		}
+		if (spinDying) {
+			spinDie -= Time.deltaTime;
+			if (spinDie < 0) {Destroy(this.gameObject);}
+			if (spinDie < 0.3f && spinOnce == true) {
+				spinOnce = false;
+				gc = GameObject.FindGameObjectWithTag("GameController"); // call gamecontroller script to determine direction to player
+				GCScript Script1 = gc.GetComponent<GCScript>();
+				dLX = 0;
+				dLZ = 0;
+				if (Script1.pLocX > monX) {dLX += 1;}
+				if (Script1.pLocX == monX) {dLX = 0;}
+				if (Script1.pLocX < monX) {dLX -= 1;}
+				if (Script1.pLocZ > monZ) {dLZ += 1;}
+				if (Script1.pLocZ == monZ) {dLZ = 0;}
+				if (Script1.pLocZ < monZ) {dLZ -= 1;}
+				if (dLX == 0 && dLZ < 0) {rotAm = 0;}
+				if (dLX < 0 && dLZ < 0) {rotAm = 45;}
+				if (dLX < 0 && dLZ == 0) {rotAm = 90;}
+				if (dLX < 0 && dLZ > 0) {rotAm = 135;}
+				if (dLX == 0 && dLZ > 0) {rotAm = 180;}
+				if (dLX > 0 && dLZ > 0) {rotAm = 225;}
+				if (dLX > 0 && dLZ == 0) {rotAm = 270;}
+				if (dLX > 0 && dLZ < 0) {rotAm = 315;}
+				Debug.Log(rotAm);
+				Vector3 traPos = transform.position;
+				GameObject newBlood = Instantiate(bloodEffect, new Vector3(traPos.x, traPos.y-2, traPos.z), Quaternion.identity) as GameObject;
+				newBlood.transform.Rotate(0, rotAm, 0);
+			}
 
+		}
 	}
 
 }

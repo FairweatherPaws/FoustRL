@@ -5,17 +5,20 @@ public class GCScript : MonoBehaviour {
 
 	private float autoticker = 0;
 	private GoTweenChain chain;
-	public int power, endurance, speed, joustbonus, playHP, experience, pLocX, pLocZ, oldLocX, oldLocZ, dLocX, dLocZ, level, movement, totalAggro;
+	public int power, endurance, speed, joustbonus, playHP, experience, pLocX, pLocZ, oldLocX, oldLocZ, dLocX, dLocZ, level, movement, totalAggro, damageNumber;
 	public int mapX, mapZ, killCount, spawnCount, monCount, maxPierce, curPierce;
 	public GameObject powerNum, endNum, speedNum, jbonusNum, moveNum, HPNum, EXPNum, levelNum, killsNum, gameOverText, player, enemy, stabVictim, stabVic2;
-	public GameObject playerChargeHalo, playerChargeHaloSuper, playerChargeHaloThree, background, prevStabVic;
+	public GameObject playerChargeHalo, playerChargeHaloSuper, playerChargeHaloThree, background, prevStabVic, spinEffect, spinBtn;
 	private int[,] mapGrid, playerLoc;
 	private bool conflict = false;
 	private bool blinkUp = true;
 	private bool rotateCW = true;
 	private bool piercingBlow = false;
 	private bool hasPierced = false;
-	private float countdown, cooldown, ticker;
+	private bool spinMode = false;
+	public bool spinBtnPressed = false;
+	private Quaternion currentDir;
+	private float countdown, cooldown, ticker, spinLim;
 	public bool gameOver = false;
 	public int newMonX, newMonZ, ranSide, ranSquareX, ranSquareZ, ranType;
 	public Transform newMonType, goblin, ork, krusher, damageEffect, gOT;
@@ -132,8 +135,11 @@ public class GCScript : MonoBehaviour {
 							player.transform.rotation = Quaternion.Euler(90,225,0);
 							if (Mathf.Abs ( pLocX + 1) < mapX && Mathf.Abs (pLocZ + 1) < mapZ)	{pLocX += 1; pLocZ += 1; MoveFunct();}
 						}
-						if (Input.GetAxis("Wait") > 0) 
-						{joustbonus = 0; MoveFunct();}
+						if (Input.GetAxis("Wait") > 0) {joustbonus = 0; MoveFunct();}
+						if (Input.GetAxis("Spinzaku") > 0 || spinBtnPressed == true) 
+						{
+							if (joustbonus > 4) {joustbonus -= 5; Spinzaku();}
+						}
 						
 						
 						
@@ -156,6 +162,15 @@ public class GCScript : MonoBehaviour {
 				killsNum.GetComponent<TextMesh>().text = killCount.ToString();
 				
 				autoticker = 0;
+			}
+
+			if (spinMode){
+				player.transform.Rotate(0, 15f, 0, Space.World);
+				spinLim -= 15;
+				if (spinLim < 0) {
+					spinMode = false; 
+					player.transform.rotation = currentDir; 
+					spinEffect.renderer.enabled = false;}
 			}
 		}
 	}
@@ -205,14 +220,19 @@ public class GCScript : MonoBehaviour {
 		int plusoneX = pLocX - oldLocX; // get attack direction
 		int plusoneZ = pLocZ - oldLocZ;
 		curPierce = maxPierce;
+		prevStabVic = stabVictim;
 	doubleAttack: // piercing checkpoint
 		piercingBlow = false; // prevents autoloop
 		MonControl Script3 = stabVictim.GetComponent<MonControl>();
+		Vector3 stabby = stabVictim.transform.position;
+		Vector3 prevStabby = prevStabVic.transform.position;
 		if (Script3.monEnd >= totalAggro) {totalAggro = 0;} // check if DR too high
 		else {totalAggro -= Script3.monEnd;} // if not, reduce damage by DR
+		damageNumber = totalAggro;
 		if (Script3.monHP > totalAggro){ // do they survive?
 			Script3.monHP = Script3.monHP - totalAggro; // if so, reduce damage from HP
 		}
+
 		else {
 			totalAggro -= Script3.monHP; //if not, reduce damage by HP
 			experience += Script3.monExp; //give XP
@@ -234,21 +254,21 @@ public class GCScript : MonoBehaviour {
 			}
 
 		}
-		if (totalAggro > 0) 
+		if (damageNumber > 0) 
 		{
 			if (hasPierced) {
 				Instantiate(damageEffect, new Vector3(
-					(stabVictim.transform.position.x + prevStabVic.transform.position.x) / 2 * 0.95f, 
+					(stabby.x + prevStabby.x) / 2 * 0.95f, 
 					5f, 
-					(stabVictim.transform.position.z + prevStabVic.transform.position.z) / 2 * 0.95f), 
+					(stabby.z + prevStabby.z) / 2 * 0.95f), 
 				            Quaternion.Euler(90, 330, 0));
 
 			}
 			else {
 				Instantiate(damageEffect, new Vector3(
-					(stabVictim.transform.position.x + player.transform.position.x) / 2 * 0.95f, 
+					(stabby.x + player.transform.position.x) / 2 * 0.95f, 
 					5f, 
-					(stabVictim.transform.position.z + player.transform.position.z) / 2 * 0.95f), 
+					(stabby.z + player.transform.position.z) / 2 * 0.95f), 
 				            Quaternion.Euler(90, 330, 0));
 				}
 			hasPierced = false;
@@ -313,5 +333,37 @@ public class GCScript : MonoBehaviour {
 		if (spawnCount < level) {spawnCount++; goto redux;}
 
 	}
-	
+
+	void Spinzaku() {
+		foreach(GameObject enemy in GameObject.FindGameObjectsWithTag("foe")) //check for foes in range of 1
+		{
+			MonControl Script1 = enemy.GetComponent<MonControl>();
+			if (Mathf.Sqrt((Script1.monX-pLocX)*(Script1.monX-pLocX)+(Script1.monZ-pLocZ)*(Script1.monZ-pLocZ)) < 2){ // if someone is
+				totalAggro = 25 + 15 * level;
+				if (Script1.monEnd > totalAggro) {totalAggro = 0;}
+				else {totalAggro -= Script1.monEnd;}
+				damageNumber = totalAggro;
+				Instantiate(damageEffect, new Vector3(
+					(enemy.transform.position.x + player.transform.position.x) / 2 * 0.95f, 
+					5f, 
+					(enemy.transform.position.z + player.transform.position.z) / 2 * 0.95f), 
+				            Quaternion.Euler(90, 330, 0));
+				if (Script1.monHP > totalAggro){ // do they survive?
+					Script1.monHP = Script1.monHP - totalAggro; // if so, reduce damage from HP
+				}
+				else {
+					experience += Script1.monExp; //give XP
+					Script1.spinDying = true;
+					killCount++; //ding
+				}
+			}
+			//if (movement <= 0) {Script1.monTurn = true;}
+		}
+		spinEffect.renderer.enabled = true;
+		spinMode = true;
+		currentDir = player.transform.rotation;
+		spinLim = 360;
+		spinBtnPressed = false;
+
+	}
 }

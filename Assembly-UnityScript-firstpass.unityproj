@@ -5,11 +5,11 @@
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{48CCBDA0-4F2F-A81D-36A6-99182E1BA361}</ProjectGuid>
+	<ProjectGuid>{5A4D6EC3-7B50-7FB7-5D92-EA6434CFC6EA}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace></RootNamespace>
-	<AssemblyName>Assembly-CSharp</AssemblyName>
+	<AssemblyName>Assembly-UnityScript-firstpass</AssemblyName>
 	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
 	<FileAlignment>512</FileAlignment>
 	<BaseDirectory>Assets</BaseDirectory>
@@ -46,23 +46,11 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\BloodEffectTimeOut.cs" />
-     <Compile Include="Assets\Scripts\DamageEffect.cs" />
-     <Compile Include="Assets\Scripts\GCScript.cs" />
-     <Compile Include="Assets\Scripts\GUIScript.cs" />
-     <Compile Include="Assets\Scripts\Goblin.cs" />
-     <Compile Include="Assets\Scripts\MonControl.cs" />
-     <Compile Include="Assets\Scripts\MonStats.cs" />
-     <Compile Include="Assets\Scripts\Ork.cs" />
-     <Compile Include="Assets\Scripts\PlayerScript.cs" />
-     <Compile Include="Assets\Scripts\SpinAttackButton.cs" />
+     <Compile Include="Assets\Standard Assets\Particles\Legacy Particles\TimedObjectDestructor.js" />
      <None Include="Assets\Shaders\AlphaSelfIllum2.shader" />
+     <None Include="Assets\Standard Assets\Particles\Sources\Shaders\Particle Alpha Blend (Queue +100).shader" />
      <None Include="Assets\Plugins\GoKit\easing\easeEquationsLicense.txt" />
      <None Include="Assets\Shaders\AlphaSelfIllum.shader" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Assembly-CSharp-firstpass-vs.csproj">
-      <Project>{CE8DD633-67F8-635D-7F43-DA15BEEDFBDF}</Project>      <Name>Assembly-CSharp-firstpass-vs</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

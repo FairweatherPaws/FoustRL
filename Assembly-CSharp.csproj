@@ -46,6 +46,7 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\BloodEffectTimeOut.cs" />
      <Compile Include="Assets\Scripts\DamageEffect.cs" />
      <Compile Include="Assets\Scripts\GCScript.cs" />
      <Compile Include="Assets\Scripts\GUIScript.cs" />
@@ -54,6 +55,7 @@
      <Compile Include="Assets\Scripts\MonStats.cs" />
      <Compile Include="Assets\Scripts\Ork.cs" />
      <Compile Include="Assets\Scripts\PlayerScript.cs" />
+     <Compile Include="Assets\Scripts\SpinAttackButton.cs" />
      <None Include="Assets\Shaders\AlphaSelfIllum2.shader" />
      <None Include="Assets\Plugins\GoKit\easing\easeEquationsLicense.txt" />
      <None Include="Assets\Shaders\AlphaSelfIllum.shader" />
